@@ -114,6 +114,7 @@ cb_10_fmt = copy_fmt(wb, cb_fmt, {'font_size': 10})
 cb_valign_fmt = copy_fmt(wb, cb_fmt, {'valign': 'vcenter'})
 
 def create_group_worksheet(wb, group):
+    for judge in group['judges']:
         ws = wb.add_worksheet()
         ws.set_column('B:C', 11)
         ws.set_column('G:G', 11)
@@ -137,7 +138,7 @@ def create_group_worksheet(wb, group):
                     (1, 'Age:'),
                     (2, age_str, center_fmt),
                     (1, 'Judge:'),
-                    (2, group['judges'][0], center_fmt), # TODO
+                    (2, judge, center_fmt),
                     (2, 'Total Score')]
         write_row(ws, row_data, cb_fmt, 4)
 
