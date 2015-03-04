@@ -106,6 +106,7 @@ groups = [
 
 # TODO: Make this not global
 wb = xlsxwriter.Workbook('symposium2014.xlsx')
+clear_fmt = wb.add_format()
 base_fmt = wb.add_format({'border': 1})
 center_fmt = copy_fmt(wb, base_fmt, {'align': 'center'})
 bold_fmt = copy_fmt(wb, base_fmt, {'bold': True})
@@ -114,21 +115,28 @@ cb_10_fmt = copy_fmt(wb, cb_fmt, {'font_size': 10})
 cb_valign_fmt = copy_fmt(wb, cb_fmt, {'valign': 'vcenter'})
 
 def create_group_worksheet(wb, group):
-    for judge in group['judges']:
-        ws = wb.add_worksheet()
-        ws.set_column('B:C', 11)
-        ws.set_column('G:G', 11)
-        ws.set_column('K:K', 12)
-        ws.set_column('L:L', 12)
+    for judge_num in range(len(group['judges'])):
+        judge = group['judges'][judge_num]
+        ws = wb.add_worksheet('Judge ' + str(judge_num + 1))
+        column_sizes = [('B:C', 11),
+                        ('G:G', 11),
+                        ('K:K', 12),
+                        ('L:L', 12),
+                        ('P:P', 11),
+                        ('S:T', 11),
+                        ('O:O', 0.3),
+                        ('R:R', 0.3)]
+        for s in column_sizes:
+            ws.set_column(s[0], s[1])
         ws.set_row(5, 25)
 
-        write_row(ws, [(19, title)], cb_fmt, 1)
-        write_row(ws, [(19, subtitle)], cb_fmt, 2)
+        write_row(ws, [(14, title)], cb_fmt, 1)
+        write_row(ws, [(14, subtitle)], cb_fmt, 2)
 
-        row_data = [(2, 'Region/Local', cb_fmt),
+        row_data = [(3, 'Region/Local:', cb_fmt),
                     (3, region + ' / ' + local),
                     (1, ''), (1, '')]
-        write_row(ws, row_data, center_fmt, 3, 'H')
+        write_row(ws, row_data, center_fmt, 3, 'E')
 
         age_str = str(group['age_min']) + ' to ' + str(group['age_max']) + ' yrs'
         row_data = [(1, 'Book:'),
@@ -154,10 +162,17 @@ def create_group_worksheet(wb, group):
                             ('Style &\nDelivery', 8), ('Eye\nContact', 8),
                             ('Voice &\nDiction', 8), ('Language', 8),
                             ('Effectiveness', 8)]
-        row_data = [(1, 'No.'), (2, 'Participant Name')] \
+        row_data = [(1, 'No.', cb_fmt), (2, 'Participant Name', cb_fmt)] \
                    + [(1, p[0], cb_10_fmt) for p in point_categories] \
-                   + [(1, '100', cb_10_fmt), (1, 'Rank', cb_10_fmt)]
-        write_row(ws, row_data, cb_fmt, 6)
+                   + [(1, '100'),
+                      (1, 'Rank'),
+                      (1, '', clear_fmt),
+                      (1, 'Material Total'),
+                      (1, 'Material\nRank'),
+                      (1, '', clear_fmt),
+                      (1, 'Presentation\nTotal'),
+                      (1, 'Presentation\nRank')]
+        write_row(ws, row_data, cb_10_fmt, 6)
 
         row_data = [(1, ''), (2, 'Maximum marks:', center_fmt)] \
                    + [(1, p[1], cb_10_fmt) for p in point_categories] \
@@ -171,7 +186,13 @@ def create_group_worksheet(wb, group):
             row_data = [(1, i + 1), (2, participant)] \
                        + [(1, '', center_fmt)] * len(point_categories) \
                        + [(1, '=SUM(D{0}:L{0})-2*G{0}'.format(row_num)),
-                          (1, '=RANK(M{0},M{0}:M{0},0)'.format(row_num))]
+                          (1, '=RANK(M{0},M{0}:M{0},0)'.format(row_num)),
+                          (1, '', clear_fmt),
+                          (1, '=SUM(D{0}:F{0})-G{0}'.format(row_num)),
+                          (1, '=RANK(P{0},P{0}:P{0},0)'.format(row_num)),
+                          (1, '', clear_fmt),
+                          (1, '=SUM(H{0}:L{0})'.format(row_num)),
+                          (1, '=RANK(S{0},S{0}:S{0},0)'.format(row_num))]
             write_row(ws, row_data, cb_valign_fmt, row_num)
 
 def write_row(ws, data, fmt, row, start_col='A'):
