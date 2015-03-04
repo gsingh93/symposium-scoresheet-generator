@@ -111,6 +111,7 @@ center_fmt = copy_fmt(wb, base_fmt, {'align': 'center'})
 bold_fmt = copy_fmt(wb, base_fmt, {'bold': True})
 cb_fmt = copy_fmt(wb, center_fmt, {'bold': True})
 cb_10_fmt = copy_fmt(wb, cb_fmt, {'font_size': 10})
+cb_valign_fmt = copy_fmt(wb, cb_fmt, {'valign': 'vcenter'})
 
 def create_group_worksheet(wb, group):
         ws = wb.add_worksheet()
@@ -122,63 +123,55 @@ def create_group_worksheet(wb, group):
 
         write_row(ws, [(19, title)], cb_fmt, 1)
         write_row(ws, [(19, subtitle)], cb_fmt, 2)
-#        worksheet.merge_range('A1:S1', title, cb_fmt)
-        #worksheet.merge_range('A2:S2', , cb_fmt)
 
-        ws.merge_range('H3:I3', 'Region/Local:', cb_fmt)
-        ws.merge_range('J3:L3', region + ' / ' + local, center_fmt)
-        ws.write('M3', '', center_fmt)
-        ws.write('N3', '', center_fmt)
+        row_data = [(2, 'Region/Local', cb_fmt),
+                    (3, region + ' / ' + local),
+                    (1, ''), (1, '')]
+        write_row(ws, row_data, center_fmt, 3, 'H')
 
-        ws.write('A4', 'Book:', cb_fmt)
-        ws.merge_range('B4:D4', group['book_name'], center_fmt)
-        ws.write('E4', 'Group:', cb_fmt)
-        ws.write('F4', group['number'], center_fmt)
-        ws.write('G4', 'Age:', cb_fmt)
         age_str = str(group['age_min']) + ' to ' + str(group['age_max']) + ' yrs'
-        ws.merge_range('H4:I4', age_str, center_fmt)
-        ws.write('J4', 'Judge:', cb_fmt)
-        ws.merge_range('K4:L4', group['judges'][0], center_fmt) # TODO
-        ws.merge_range('M4:N4', 'Total Score', cb_fmt)
+        row_data = [(1, 'Book:'),
+                    (3, group['book_name'], center_fmt),
+                    (1, 'Group:'),
+                    (1, group['number'], center_fmt),
+                    (1, 'Age:'),
+                    (2, age_str, center_fmt),
+                    (1, 'Judge:'),
+                    (2, group['judges'][0], center_fmt), # TODO
+                    (2, 'Total Score')]
+        write_row(ws, row_data, cb_fmt, 4)
 
-        ws.merge_range('A5:B5', 'Time Allowed:', cb_fmt)
-        ws.write('C5', str(group['time_limit']) + ' minutes', center_fmt)
-        ws.merge_range('D5:F5', 'Questions on Contents', center_fmt)
-        ws.merge_range('H5:L5', 'Presentation', center_fmt)
-        ws.write('M5', '', center_fmt)
-        ws.write('N5', '', center_fmt)
+        row_data = [(2, 'Time Allowed:', cb_fmt),
+                    (1, str(group['time_limit']) + ' minutes'),
+                    (3, 'Questions on Contents'),
+                    (1, ''),
+                    (5, 'Presentation'),
+                    (1, ''), (1, '')]
+        write_row(ws, row_data, center_fmt, 5)
 
-        ws.write('A6', 'No.', cb_fmt)
-        ws.merge_range('B6:C6', 'Participant Name', cb_fmt)
+        point_categories = [('1', 20), ('2', 20), ('3', 20), ('Overtime', '-'),
+                            ('Style &\nDelivery', 8), ('Eye\nContact', 8),
+                            ('Voice &\nDiction', 8), ('Language', 8),
+                            ('Effectiveness', 8)]
+        row_data = [(1, 'No.'), (2, 'Participant Name')] \
+                   + [(1, p[0], cb_10_fmt) for p in point_categories] \
+                   + [(1, '100', cb_10_fmt), (1, 'Rank', cb_10_fmt)]
+        write_row(ws, row_data, cb_fmt, 6)
 
-        point_categories = [('1', 20), ('2', 20), ('3', 20), ('Overtime', '-'), ('Style &\nDelivery', 8),
-                            ('Eye\nContact', 8), ('Voice &\nDiction', 8),
-                            ('Language', 8), ('Effectiveness', 8)]
+        row_data = [(1, ''), (2, 'Maximum marks:', center_fmt)] \
+                   + [(1, p[1], cb_10_fmt) for p in point_categories] \
+                   + [(1, ''), (1, '')]
+        write_row(ws, row_data, cb_10_fmt, 7)
 
-        ws.merge_range('B7:C7', 'Maximum marks:', center_fmt)
-        for i in range(len(point_categories)):
-            col = chr(ord('D') + i)
-            ws.write(col + '6', point_categories[i][0], cb_10_fmt)
-            ws.write(col + '7', point_categories[i][1], cb_10_fmt)
-        ws.write('M6', 100, cb_10_fmt)
-        ws.write('N6', 'Rank', cb_10_fmt)
-        ws.write('M7', '', cb_10_fmt)
-        ws.write('N7', '', cb_10_fmt)
-
-        cb_valign_fmt = copy_fmt(wb, cb_fmt, {'valign': 'vcenter'})
         for i in range(len(group['participants'])):
             participant = group['participants'][i]
             row_num = str(8 + i)
             ws.set_row(int(row_num) - 1, 30)
-            ws.write('A' + row_num, i + 1, cb_fmt)
-            ws.merge_range('B' + row_num + ':' + 'C' + row_num, participant, cb_valign_fmt)
-            for i in range(len(point_categories)):
-                col = chr(ord('D') + i)
-                ws.write(col + row_num, '', center_fmt)
-            col = chr(ord('D') + len(point_categories))
-            ws.write(col + row_num, '=SUM(D{0}:L{0})-2*G{0}'.format(row_num), cb_fmt)
-            col = chr(ord(col) + 1)
-            ws.write(col + row_num, '=RANK(M{0},M{0}:M{0},0)'.format(row_num), cb_fmt)
+            row_data = [(1, i + 1), (2, participant)] \
+                       + [(1, '', center_fmt)] * len(point_categories) \
+                       + [(1, '=SUM(D{0}:L{0})-2*G{0}'.format(row_num)),
+                          (1, '=RANK(M{0},M{0}:M{0},0)'.format(row_num))]
+            write_row(ws, row_data, cb_valign_fmt, row_num)
 
 def write_row(ws, data, fmt, row, start_col='A'):
     def inc_col(col, n):
@@ -188,9 +181,14 @@ def write_row(ws, data, fmt, row, start_col='A'):
     for d in data:
         assert d[0] > 0
         end_col = inc_col(start_col, d[0] - 1)
-        cells = '{1}{0}:{2}{0}'.format(row, start_col, end_col)
         format = d[2] if len(d) == 3 else fmt
-        ws.merge_range(cells, d[1], format)
+
+        if start_col == end_col:
+            ws.write(start_col + str(row), d[1], format)
+        else:
+            cells = '{1}{0}:{2}{0}'.format(row, start_col, end_col)
+            ws.merge_range(cells, d[1], format)
+        start_col = inc_col(end_col, 1)
 
 def main():
     for group in groups:
