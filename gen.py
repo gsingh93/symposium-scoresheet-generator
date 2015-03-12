@@ -68,8 +68,10 @@ def create_group_worksheet(wb, group, f):
                             ('Style &\nDelivery', 8), ('Eye\nContact', 8),
                             ('Voice &\nDiction', 8), ('Language', 8),
                             ('Effectiveness', 8)]
+        wrap_fmt = copy_fmt(wb, f['cb_10_fmt'])
+        wrap_fmt.set_text_wrap()
         row_data = [(1, 'No.', f['cb_fmt']), (2, 'Participant Name', f['cb_fmt'])] \
-                   + [(1, p[0], f['cb_10_fmt']) for p in point_categories] \
+                   + [(1, p[0], wrap_fmt) for p in point_categories] \
                    + [(1, '100'),
                       (1, 'Rank'),
                       (1, '', f['clear_fmt']),
@@ -78,7 +80,7 @@ def create_group_worksheet(wb, group, f):
                       (1, '', f['clear_fmt']),
                       (1, 'Presentation\nTotal'),
                       (1, 'Presentation\nRank')]
-        write_row(ws, row_data, f['cb_10_fmt'], 6)
+        write_row(ws, row_data, wrap_fmt, 6)
 
         row_data = [(1, ''), (2, 'Maximum marks:', f['center_fmt'])] \
                    + [(1, p[1], f['cb_10_fmt']) for p in point_categories] \
