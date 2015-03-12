@@ -5,74 +5,10 @@ import xlrd
 import xlsxwriter
 
 def copy_fmt(wb, f, properties={}):
-    new_fmt = wb.add_format()
-
-    new_fmt.num_format = 0
-    new_fmt.num_format_index = 0
-    new_fmt.font_index = 0
-    new_fmt.has_font = 0
-    new_fmt.has_dxf_font = 0
-
-    new_fmt.bold = f.bold
-    new_fmt.underline = f.underline
-    new_fmt.italic = f.italic
-    new_fmt.font_name = f.font_name
-    new_fmt.font_size = f.font_size
-    new_fmt.font_color = 0x0
-    new_fmt.font_strikeout = 0
-    new_fmt.font_outline = 0
-    new_fmt.font_shadow = 0
-    new_fmt.font_script = 0
-    new_fmt.font_family = 2
-    new_fmt.font_charset = 0
-    new_fmt.font_scheme = 'minor'
-    new_fmt.font_condense = 0
-    new_fmt.font_extend = 0
-    new_fmt.theme = 0
-    new_fmt.hyperlink = 0
-
-    new_fmt.hidden = 0
-    new_fmt.locked = 1
-
-    new_fmt.text_h_align = f.text_h_align
-    new_fmt.text_wrap = 0
-    new_fmt.text_v_align = f.text_v_align
-    new_fmt.text_justlast = 0
-    new_fmt.rotation = 0
-    new_fmt.center_across = 0
-
-    new_fmt.fg_color = f.fg_color
-    new_fmt.bg_color = f.bg_color
-    new_fmt.pattern = 0
-    new_fmt.has_fill = 0
-    new_fmt.has_dxf_fill = 0
-    new_fmt.fill_index = 0
-    new_fmt.fill_count = 0
-
-    new_fmt.border_index = f.border_index
-    new_fmt.has_border = f.has_border
-    new_fmt.has_dxf_border = f.has_dxf_border
-    new_fmt.border_count = f.border_count
-
-    new_fmt.bottom = f.bottom
-    new_fmt.bottom_color = f.bottom_color
-    new_fmt.diag_border = f.diag_border
-    new_fmt.diag_color = f.diag_color
-    new_fmt.diag_type = f.diag_type
-    new_fmt.left = f.left
-    new_fmt.left_color = f.left_color
-    new_fmt.right = f.right
-    new_fmt.right_color = f.right_color
-    new_fmt.top = f.top
-    new_fmt.top_color = f.top_color
-
-    new_fmt.indent = 0
-    new_fmt.shrink = 0
-    new_fmt.merge_range = 0
-    new_fmt.reading_order = 0
-    new_fmt.just_distrib = 0
-    new_fmt.color_indexed = 0
-    new_fmt.font_only = 0
+    property_names = [p[4:] for p in dir(f) if p[0:4] == 'set_']
+    dft_fmt = wb.add_format()
+    new_fmt = wb.add_format({k : v for k, v in f.__dict__.iteritems()
+                            if k in property_names and dft_fmt.__dict__[k] != v})
 
     for key, value in properties.items():
         getattr(new_fmt, 'set_' + key)(value)
