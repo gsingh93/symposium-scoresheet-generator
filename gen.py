@@ -145,12 +145,14 @@ def create_final_scoresheet(wb, group, f):
     row_data = [(1, 'No.'), (2, 'Participant Name'), (num_judges, 'Ranks given by judges')]
     write_row(ws, row_data, f['cb_fmt'], 5)
 
+    wrap_fmt = copy_fmt(wb, f['cb_10_fmt'])
+    wrap_fmt.set_text_wrap()
     row_data = [(1, ''), (2, 'Judges:', f['cb_fmt'])] \
                + [(1, "='Judge %d'!K4" % (i + 1)) for i in range(num_judges)] \
                + [(1, 'Time used'), (1, 'Punjabi/English'), (1, 'Final\nRank'),
                   (1, 'Final\nPosition'), (1, 'Material\nTie-breaker'),
                   (1, 'Rank')]
-    write_row(ws, row_data, f['cb_10_fmt'], 6)
+    write_row(ws, row_data, wrap_fmt, 6)
 
     start_row = 7
     end_row = start_row + len(group['participants']) - 1
