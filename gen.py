@@ -18,8 +18,8 @@ def copy_fmt(wb, f, properties={}):
 year = datetime.datetime.now().year
 title = str(year) + ' Sikh Youth Symposium'
 subtitle = 'By: Sikh Youth Alliance of North America'
-region = 'Michigan - Windsor'
-local = 'Detroit'
+region = 'Michigan'
+local = 'Sterling Heights'
 
 def create_group_worksheet(wb, group, f):
     for judge_num in range(len(group['judges'])):
@@ -89,11 +89,12 @@ def create_group_worksheet(wb, group, f):
 
         start_row = 8
         end_row = start_row + len(group['participants']) - 1
+        p_fmt = copy_fmt(wb, f['cb_valign_fmt'], {'font_size': 14})
         for i in range(len(group['participants'])):
             participant = group['participants'][i]
             row_num = start_row + i
             ws.set_row(row_num - 1, 30)
-            row_data = [(1, i + 1), (2, participant)] \
+            row_data = [(1, i + 1), (2, participant, p_fmt)] \
                        + [(1, '', f['center_fmt'])] * len(point_categories) \
                        + [(1, '=SUM(D{0}:L{0})-2*G{0}'.format(row_num)),
                           (1, '=RANK(M{0},M{1}:M{2},0)'.format(
