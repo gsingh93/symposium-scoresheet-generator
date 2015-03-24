@@ -219,6 +219,10 @@ def read_groups(filename):
         judge_col = 4
         g = {}
 
+        if info_row >= worksheet.nrows:
+            print 'Skipping worksheet "%s"' % worksheet.name
+            continue
+
         g['number'] = int(worksheet.cell_value(info_row, 0))
         g['age_min'] = int(worksheet.cell_value(info_row, 1))
         g['age_max'] = int(worksheet.cell_value(info_row, 2))
@@ -255,6 +259,23 @@ def read_groups(filename):
         groups.append(g)
     return groups
 
+def create_comments_worksheets(wb, group, f):
+    for judge_num in range(len(group['judges'])):
+        judge = group['judges'][judge_num]
+        ws = wb.add_worksheet('Judge %d Comments' % (judge_num + 1))
+        set_column_sizes(ws, [('A', 5), ('B', 20), ('C', 70)])
+        write_row(ws, [(3, 'Comments for ' + judge)], f['cb_fmt'], 1)
+        write_row(ws, [(1, 'No.'), (1, 'Participant'), (1, 'Comments')],
+                  f['cb_fmt'], 2)
+        write_row(ws, [(1, '')] * 3, f['cb_fmt'], 3)
+        ws.set_row(2, 5)
+        for i in range(len(group['participants'])):
+            participant = group['participants'][i]
+            ws.set_row(i + 3, 25)
+            write_row(ws, [(1, str(i + 1)), (1, participant), (1, '')],
+                      f['cb_fmt'], i + 4)
+
+
 def main():
     groups = read_groups('scoresheet_info_%d.xlsx' % year)
     for group in groups:
@@ -272,6 +293,7 @@ def main():
 
         create_group_worksheet(wb, group, f)
         create_final_scoresheet(wb, group, f)
+        create_comments_worksheets(wb, group, f)
 
 if __name__ == '__main__':
     main()
