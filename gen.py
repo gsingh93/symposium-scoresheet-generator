@@ -260,6 +260,7 @@ def read_groups(filename):
     return groups
 
 def create_comments_worksheets(wb, group, f):
+    p_fmt = copy_fmt(wb, f['cb_valign_fmt'], {'font_size': 14})
     for judge_num in range(len(group['judges'])):
         judge = group['judges'][judge_num]
         ws = wb.add_worksheet('Judge %d Comments' % (judge_num + 1))
@@ -272,8 +273,8 @@ def create_comments_worksheets(wb, group, f):
         for i in range(len(group['participants'])):
             participant = group['participants'][i]
             ws.set_row(i + 3, 25)
-            write_row(ws, [(1, str(i + 1)), (1, participant), (1, '')],
-                      f['cb_fmt'], i + 4)
+            write_row(ws, [(1, str(i + 1), f['cb_valign_fmt']),
+                           (1, participant), (1, '')], p_fmt, i + 4)
 
 
 def main():
